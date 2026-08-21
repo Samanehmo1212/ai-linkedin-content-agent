@@ -103,7 +103,7 @@ This structured output makes it easier to display and process individual parts o
 Clone the repository:
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Samanehmo1212/ai-linkedin-content-agent.git
 cd linkedin-content-agent
 ```
 
