@@ -1,0 +1,283 @@
+{
+  "company": {
+    "name": "Vahvero Symbiosis Oy",
+    "website": "https://www.vahvero.com",
+    "country": "Finland",
+    "headquarters": "Finland",
+    "founded": 2014,
+    "industry": [
+      "Data Engineering",
+      "Software Development",
+      "Healthcare Technology",
+      "IT Services"
+    ],
+    "description": "Vahvero Symbiosis Oy is a Finnish software and data engineering company developing software and data solutions, with experience in healthcare and data management.",
+    "core_expertise": [
+      "Software development",
+      "Data engineering",
+      "Data management",
+      "Cloud solutions",
+      "Healthcare software",
+      "Healthcare data",
+      "Reliable software development",
+      "Working across different platforms"
+    ],
+    "key_message": "Reliability, software expertise across different platforms, and cloud expertise are core strengths of Vahvero Symbiosis in software development and data management.",
+    "contact_email": "contact@vahvero.fi"
+  },
+
+  "main_product": {
+    "name": "Raiqu",
+    "category": "Healthcare software",
+    "sector": "Rheumatology",
+    "type": "Web-based quality monitoring service",
+    "purpose": "Support rheumatology care by helping healthcare professionals monitor clinical data and treatment outcomes over time.",
+    "key_capabilities": [
+      "Quality monitoring",
+      "Clinical data management",
+      "Monitoring treatment outcomes over time",
+      "Supporting analysis of healthcare data",
+      "Combining clinical information and standardized measures"
+    ],
+    "data_and_measurement_areas": [
+      "Clinical data",
+      "Patient-reported outcomes",
+      "Treatment information",
+      "JADAS",
+      "DAS"
+    ],
+    "value_proposition": [
+      "Turn healthcare data into meaningful insights",
+      "Support better-informed clinical decisions",
+      "Help healthcare professionals follow treatment outcomes over time",
+      "Support quality monitoring in rheumatology care"
+    ],
+    "target_users": [
+      "Healthcare professionals",
+      "Rheumatology professionals",
+      "Healthcare organizations",
+      "Hospitals",
+      "Healthcare researchers",
+      "Organizations interested in clinical quality monitoring"
+    ],
+    "target_markets": [
+      "Finland",
+      "Nordic countries",
+      "European healthcare markets"
+    ]
+  },
+
+  "other_services": {
+    "areas": [
+      "Data engineering",
+      "Software development",
+      "IT services",
+      "Cloud solutions",
+      "Data management"
+    ]
+  },
+
+  "linkedin_strategy": {
+    "primary_goal": "Generate awareness, credibility, engagement, and potential business leads for Vahvero Symbiosis and its software and data solutions.",
+    "secondary_goal": "Position Vahvero as a knowledgeable and reliable Finnish software and data engineering company.",
+    "priority_topics": [
+      "Raiqu",
+      "Healthcare technology",
+      "Digital health",
+      "Healthcare data",
+      "Rheumatology",
+      "Clinical data",
+      "Data engineering",
+      "Cloud technology",
+      "Software reliability",
+      "Software development",
+      "AI and technology",
+      "eHealth",
+      "Healthcare regulations"
+    ],
+    "content_mix": [
+      "Product-focused posts",
+      "Educational posts",
+      "Industry insights",
+      "Technical insights",
+      "Healthcare technology topics",
+      "Data and cloud topics",
+      "Occasional light or humorous technology posts",
+      "Company expertise and experience"
+    ],
+    "recommended_frequency": "Approximately 4 posts per month"
+  },
+
+  "target_audience": {
+    "primary": [
+      "Healthcare organizations",
+      "Hospitals",
+      "Rheumatology departments",
+      "Healthcare technology organizations",
+      "Digital health companies",
+      "Healthcare decision makers",
+      "Organizations looking for healthcare software"
+    ],
+    "secondary": [
+      "IT decision makers",
+      "Data professionals",
+      "Software development leaders",
+      "FinTech and HealthTech professionals",
+      "Potential European technology partners",
+      "Potential B2B customers"
+    ]
+  },
+
+  "lead_generation": {
+    "primary_strategy": "Find organizations that may need Vahvero's existing software and data solutions rather than focusing only on other IT companies.",
+    "priority_leads": [
+      "Organizations that may need healthcare software",
+      "Hospitals and healthcare organizations",
+      "Rheumatology organizations",
+      "HealthTech companies",
+      "Organizations working with clinical data",
+      "Organizations interested in quality monitoring",
+      "European organizations that may benefit from Raiqu"
+    ],
+    "important_principle": "The main objective is to identify potential customers and organizations that need Vahvero's solutions, not simply companies that provide IT services themselves."
+  },
+
+  "brand_positioning": {
+    "desired_image": [
+      "Reliable",
+      "Professional",
+      "Technically capable",
+      "Knowledgeable",
+      "Practical",
+      "Trustworthy",
+      "Innovative but not overly promotional"
+    ],
+    "key_concepts": [
+      "Reliability",
+      "Expertise",
+      "Data",
+      "Cloud",
+      "Healthcare",
+      "Quality",
+      "Better decisions"
+    ]
+  },
+
+  "linkedin_tone": {
+    "language": "English",
+    "style": [
+      "Professional",
+      "Clear",
+      "Human",
+      "Concise",
+      "Educational",
+      "Credible",
+      "Occasionally lightly humorous"
+    ],
+    "avoid": [
+      "Overly aggressive sales language",
+      "Unverified claims",
+      "Exaggerated promises",
+      "Buzzword-heavy writing",
+      "Long complicated sentences",
+      "Claims that cannot be supported by company information"
+    ],
+    "preferred_structure": [
+      "Strong opening hook",
+      "Short paragraphs",
+      "Clear explanation of the problem or topic",
+      "Practical value or insight",
+      "Short company/product connection",
+      "Clear call to action when appropriate"
+    ]
+  },
+
+  "call_to_action": {
+    "preferred_contact": "contact@vahvero.fi",
+    "website": "www.vahvero.com",
+    "examples": [
+      "Questions or interested in learning more? Contact us at contact@vahvero.fi.",
+      "Learn more at www.vahvero.com.",
+      "Interested in learning more? Get in touch with us at contact@vahvero.fi."
+    ]
+  },
+
+  "languages": {
+    "main_post": "English",
+    "additional_language": "Finnish",
+    "recommended_use": "Use Finnish as a first comment when appropriate instead of making the main LinkedIn post bilingual."
+  },
+
+  "linkedin_formatting": {
+    "main_post": "English",
+    "finnish_version": "Can be placed in the first comment",
+    "hashtags": "Use a small number of highly relevant hashtags",
+    "bold": "Use Unicode bold for important short phrases when appropriate",
+    "links": "Prefer www.vahvero.com in the post when a website link is needed",
+    "email": "Include contact@vahvero.fi when a business CTA is appropriate"
+  },
+
+  "content_rules": {
+    "must_be_accurate": true,
+    "must_not_invent_product_features": true,
+    "must_not_invent_customers": true,
+    "must_not_invent_partnerships": true,
+    "must_not_invent_statistics": true,
+    "must_not_make_medical_claims": true,
+    "must_not_present_Raiqu_as_replacing_healthcare_professionals": true,
+    "must_distinguish_between_product_capabilities_and_general_industry_information": true
+  },
+
+  "example_positioning_messages": [
+    "Better data can lead to better insights — and better-informed decisions.",
+    "In healthcare, collecting data is only the beginning. The real value comes from understanding what the data tells us.",
+    "Reliable software, strong data foundations, and cloud expertise are essential for modern digital solutions.",
+    "Healthcare data creates real value when it can support meaningful insights and better-informed decisions."
+  ],
+
+  "future_article_topics": [
+    {
+      "topic": "eHealth and healthcare regulations",
+      "priority": "high",
+      "reason": "Strong connection to Vahvero's healthcare expertise and potential healthcare customers."
+    },
+    {
+      "topic": "AI in healthcare and software",
+      "priority": "medium",
+      "reason": "Can demonstrate Vahvero's technology expertise and provide educational content."
+    },
+    {
+      "topic": "Cloud technology and reliable software development",
+      "priority": "medium",
+      "reason": "Directly supports Vahvero's core positioning around cloud expertise and software reliability."
+    }
+  ],
+
+  "humorous_content": {
+    "allowed": true,
+    "style": "Light professional humor",
+    "example_topic": "It works on my machine",
+    "message": "Modern cloud-based software development can reduce environment-specific problems by making applications more consistent across environments.",
+    "rule": "Humor should still connect to a real technical insight and should not undermine the company's professional image."
+  },
+
+  "content_creation_process": {
+    "step_1": "Choose a topic relevant to Vahvero's business or target audience.",
+    "step_2": "Identify the audience and the problem or question the post addresses.",
+    "step_3": "Create a strong but natural hook.",
+    "step_4": "Explain the topic in a clear and concise way.",
+    "step_5": "Connect the topic to Vahvero, Raiqu, or the company's expertise only when relevant.",
+    "step_6": "Add a CTA when there is a genuine reason to contact the company.",
+    "step_7": "Add relevant hashtags.",
+    "step_8": "Optionally prepare a Finnish version for the first comment.",
+    "step_9": "Never publish unverified claims."
+  },
+
+  "approval_process": {
+    "current_workflow": "LinkedIn post materials are reviewed by Juha before publication.",
+    "sharepoint": {
+      "purpose": "Internal marketing communication and reviewing new post materials.",
+      "planned_structure": "Marketing → Documents → LinkedIn Posts → 2026 → month → post/topic"
+    }
+  }
+}
