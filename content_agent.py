@@ -1,7 +1,8 @@
 import os
 import json
 from openai import OpenAI
-from retrieval import retrieve_company_info
+#from retrieval import retrieve_company_info
+from semantic_retrieval import retrieve_semantic_context
 
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
@@ -14,7 +15,8 @@ def generate_linkedin_post(
     tone,
     post_length
 ):
-    context = retrieve_company_info(topic)
+    #context = retrieve_company_info(topic)
+    context = retrieve_semantic_context(topic)
     if post_type == "Product post":
       post_guidance = """
     Focus on the product, its purpose and its relevant capabilities.
