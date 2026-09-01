@@ -2,6 +2,11 @@ import streamlit as st
 from content_agent import generate_linkedin_post
 from retrieval import retrieve_company_info
 
+if "post" not in st.session_state:
+    st.session_state["post"] = None
+if "approved" not in st.session_state:
+    st.session_state["approved"] = False    
+
 st.set_page_config(
     page_title="AI LinkedIn Content Agent",
     page_icon="🤖",
@@ -68,26 +73,76 @@ if st.button("Generate Post"):
                     post_length
                 )
 
+            st.session_state["post"] = post
+            st.session_state["approved"] = False
             st.success("Post generated successfully!")
-
-            st.subheader("Hook")
-            st.write(post.get("hook", "No hook generated."))
-
-            st.subheader("Post")
-            st.write(post.get("post", "No post content generated."))
-
-            st.subheader("CTA")
-            st.write(post.get("cta", "No CTA generated."))
-
-            st.subheader("Hashtags")
-
-            hashtags = post.get("hashtags", [])
-
-            if hashtags:
-                st.write(" ".join(hashtags))
-            else:
-                st.write("No hashtags generated.")
 
         except Exception as error:
             st.error("Something went wrong while generating the post.")
             st.write(error)
+
+
+# Display saved post
+if st.session_state["post"] is not None:
+
+    post = st.session_state["post"]
+
+    st.subheader("Hook")
+    st.write(post.get("hook", "No hook generated."))
+
+    st.subheader("Post")
+    st.write(post.get("post", "No post content generated."))
+
+    st.subheader("CTA")
+    st.write(post.get("cta", "No CTA generated."))
+
+    st.subheader("Hashtags")
+
+    hashtags = post.get("hashtags", [])
+
+    if hashtags:
+        st.write(" ".join(hashtags))
+    else:
+        st.write("No hashtags generated.")
+
+     #  
+    if st.session_state["approved"]:
+        st.success("🟢 Post approved")
+    else:
+        st.warning("🟡 Waiting for approval")   
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        regenerate = st.button("🔄 Regenerate")
+
+    with col2:
+        approve = st.button("✅ Approve")
+
+    if approve:
+        st.session_state["approved"] = True
+        #st.success("Post approved! ✅")
+        st.rerun()
+
+    if regenerate:
+        try:
+            with st.spinner("Regenerating post..."):
+                new_post = generate_linkedin_post(
+                    topic,
+                    post_type,
+                    language,
+                    tone,
+                    post_length
+                )
+
+            st.session_state["post"] = new_post
+            st.session_state["approved"] = False
+            st.rerun()
+
+        except Exception as error:
+            st.error("Something went wrong while regenerating the post.")
+            st.write(error)
+
+    #st.write("Approved status:", st.session_state["approved"])
+
+        
