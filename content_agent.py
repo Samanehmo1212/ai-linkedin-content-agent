@@ -7,7 +7,16 @@ from semantic_retrieval import retrieve_semantic_context
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
+def load_agent_config():
+    with open("company_info.json", "r", encoding="utf-8") as file:
+        company_info = json.load(file)
 
+    return company_info["agent_config"]
+
+# for test
+#config = load_agent_config()
+#print(config["company_name"])
+      
 def generate_linkedin_post(
     topic,
     post_type,
@@ -15,6 +24,12 @@ def generate_linkedin_post(
     tone,
     post_length
 ):
+    config = load_agent_config()
+
+    company_name = config["company_name"]
+    brand_rules = config["brand_rules"]
+    compliance_rules = config["compliance_rules"]
+    default_style = config["default_style"]
     #context = retrieve_company_info(topic)
     context = retrieve_semantic_context(topic)
     if post_type == "Product post":
@@ -51,31 +66,36 @@ def generate_linkedin_post(
         post_guidance = """
     Create a clear and professional LinkedIn post based on the topic.
     """
-
-    instructions = """
-You are a LinkedIn content agent for Vahvero Symbiosis Oy.
+    instructions = f"""
+You are a LinkedIn content agent for {company_name}.
 
 Create professional LinkedIn content using only the provided company context.
 
-Rules:
-- Do not invent company facts, product features, customers, partnerships or statistics.
-- Do not make medical claims.
-- Keep the tone professional, clear, human and concise.
-- Connect the topic to Vahvero or Raiqu only when relevant.
-- Avoid overly promotional language.
+Brand rules:
+{chr(10).join(f"- {rule}" for rule in brand_rules)}
+
+Compliance rules:
+{chr(10).join(f"- {rule}" for rule in compliance_rules)}
+
+Default style:
+{default_style}
+
+Additional rules:
+- Connect the topic to the company or its products only when relevant.
 - Use a small number of relevant hashtags.
 
 Return the output as valid JSON with exactly these fields:
 
-{
+{{
   "hook": "The opening hook",
   "post": "The main LinkedIn post content",
   "cta": "The call to action",
   "hashtags": ["#Example1", "#Example2"]
-}
+}}
 
 Return only JSON. Do not add any text before or after it.
 """
+ 
 
     user_input = f"""
     Topic:
@@ -120,6 +140,7 @@ Return only JSON. Do not add any text before or after it.
             raise ValueError(f"Missing field in AI response: {field}")
 
     return post_data
+
 
 if __name__ == "__main__":
     topic = input("Post topic: ")

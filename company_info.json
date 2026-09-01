@@ -279,5 +279,18 @@
       "purpose": "Internal marketing communication and reviewing new post materials.",
       "planned_structure": "Marketing → Documents → LinkedIn Posts → 2026 → month → post/topic"
     }
+  },
+
+  "agent_config": {
+  "company_name": "Vahvero Symbiosis Oy",
+  "brand_rules": [
+    "Use only provided company context.",
+    "Do not invent company facts, features, customers, partnerships, or statistics.",
+    "Avoid overly promotional language."
+  ],
+  "compliance_rules": [
+    "Do not make medical claims."
+  ],
+  "default_style": "Professional, clear, human, and concise."
   }
 }
