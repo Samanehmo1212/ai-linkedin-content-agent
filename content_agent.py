@@ -1,90 +1,189 @@
 import os
 import json
 from openai import OpenAI
-#from retrieval import retrieve_company_info
 from semantic_retrieval import retrieve_semantic_context
+from post_history import load_post_history
 
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
-def load_agent_config():
-    with open("company_info.json", "r", encoding="utf-8") as file:
+
+def load_company_name(company_file_path):
+
+    with open(company_file_path, "r", encoding="utf-8") as file:
         company_info = json.load(file)
 
-    return company_info["agent_config"]
+    return company_info["company"]["name"]
 
-# for test
-#config = load_agent_config()
-#print(config["company_name"])
-      
+def suggest_linkedin_topics(
+    company_file_path,
+    language
+):
+
+    company_name = load_company_name(company_file_path)
+    company_rules = load_company_rules(company_file_path)
+    global_rules = load_global_rules()
+
+    with open(company_file_path, "r", encoding="utf-8") as file:
+        company_knowledge = json.load(file)
+
+    post_history = load_post_history(
+    company_file_path
+    )
+
+    previous_topics = []
+
+    for post in post_history:
+        previous_topics.append({
+            "topic": post.get("topic", ""),
+            "angle": post.get("angle", "")
+        })    
+
+    instructions = f"""
+You are a LinkedIn content strategist.
+
+Suggest 5 useful LinkedIn post topics for this company.
+
+Company:
+{company_name}
+
+Company knowledge:
+{json.dumps(company_knowledge, ensure_ascii=False, indent=2)}
+
+
+Company rules:
+{json.dumps(company_rules, ensure_ascii=False, indent=2)}
+
+
+Previously approved topics and angles:
+{json.dumps(previous_topics, ensure_ascii=False, indent=2)}
+
+Do not repeat or slightly rephrase these previous topics or angles.
+Suggest genuinely new content ideas.
+
+Language:
+{language}
+
+For each suggestion, provide:
+- topic: the main subject of the post
+- angle: the specific perspective or approach for that topic
+
+The suggestions should be meaningfully different from each other.
+Do not invent company facts.
+Keep each topic and angle concise.
+
+Return only valid JSON in this exact format:
+
+{{
+  "topics": [
+    {{
+      "topic": "...",
+      "angle": "..."
+    }}
+  ]
+}}
+"""
+
+    response = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[
+            {
+                "role": "user",
+                "content": instructions
+            }
+        ]
+    )
+
+    result = response.choices[0].message.content.strip()
+
+    if result.startswith("```json"):
+        result = result[7:]
+
+    if result.startswith("```"):
+        result = result[3:]
+
+    if result.endswith("```"):
+        result = result[:-3]
+
+    return json.loads(result.strip())
+
+
+def load_company_rules(company_file_path):
+
+    company_folder = os.path.dirname(company_file_path)
+
+    rules_file = os.path.join(
+        company_folder,
+        "rules.json"
+    )
+
+    if not os.path.exists(rules_file):
+        return None
+
+    with open(rules_file, "r", encoding="utf-8") as file:
+        return json.load(file)
+
+def load_global_rules():
+
+    global_rules_file = os.path.join(
+        "config",
+        "global_rules.json"
+    )
+
+    with open(global_rules_file, "r", encoding="utf-8") as file:
+        return json.load(file)
+
+
 def generate_linkedin_post(
     topic,
-    post_type,
     language,
-    tone,
-    post_length
+    company_file_path
 ):
-    config = load_agent_config()
 
-    company_name = config["company_name"]
-    brand_rules = config["brand_rules"]
-    compliance_rules = config["compliance_rules"]
-    default_style = config["default_style"]
-    #context = retrieve_company_info(topic)
-    context = retrieve_semantic_context(topic)
-    if post_type == "Product post":
-      post_guidance = """
-    Focus on the product, its purpose and its relevant capabilities.
-    Explain its value clearly without sounding overly promotional.
-    End with a CTA related to learning more about the product.
-    """
+    company_name = load_company_name(company_file_path)
+    company_rules = load_company_rules(company_file_path)
+    global_rules = load_global_rules()
 
-    elif post_type == "Educational post":
-        post_guidance = """
-    Focus primarily on teaching the reader something useful.
-    Use the company or product only when it naturally supports the topic.
-    End with a thought-provoking question.
-    """
+    context = retrieve_semantic_context(
+        topic,
+        company_file_path
+    )
 
-    elif post_type == "Industry insight":
-        post_guidance = """
-    Focus on an important industry challenge, trend or observation.
-    Provide a useful perspective based on the available context.
-    Avoid turning the post into a product advertisement.
-    End with a question that encourages discussion.
-    """
+    company_rules_text = json.dumps(
+        company_rules or {},
+        ensure_ascii=False,
+        indent=2
+    )
 
-    elif post_type == "Technical post":
-        post_guidance = """
-    Focus on the technical concept and explain why it matters.
-    Keep the explanation understandable for a professional LinkedIn audience.
-    Connect it to the company's technical expertise only when relevant.
-    End with a practical or technical question.
-    """
+    global_rules_text = json.dumps(
+        global_rules,
+        ensure_ascii=False,
+        indent=2
+    )
 
-    else:
-        post_guidance = """
-    Create a clear and professional LinkedIn post based on the topic.
-    """
     instructions = f"""
 You are a LinkedIn content agent for {company_name}.
 
-Create professional LinkedIn content using only the provided company context.
+Create a LinkedIn post about the requested topic.
 
-Brand rules:
-{chr(10).join(f"- {rule}" for rule in brand_rules)}
+Use only the provided company context for company-specific facts.
 
-Compliance rules:
-{chr(10).join(f"- {rule}" for rule in compliance_rules)}
+Follow all global rules and company-specific rules provided below.
 
-Default style:
-{default_style}
+Global rules:
+{global_rules_text}
 
-Additional rules:
+Company-specific rules:
+{company_rules_text}
+
+Task-specific rules:
+- Focus clearly on the requested topic.
+- Provide useful or interesting value to the reader.
 - Connect the topic to the company or its products only when relevant.
-- Use a small number of relevant hashtags.
+- Do not force a company connection when it does not naturally fit.
+- Do not invent company facts, capabilities, customers, products, statistics, or partnerships.
 
-Return the output as valid JSON with exactly these fields:
+Return valid JSON with exactly these fields:
 
 {{
   "hook": "The opening hook",
@@ -93,32 +192,19 @@ Return the output as valid JSON with exactly these fields:
   "hashtags": ["#Example1", "#Example2"]
 }}
 
-Return only JSON. Do not add any text before or after it.
+Return only JSON.
 """
- 
 
     user_input = f"""
-    Topic:
-    {topic}
+Topic:
+{topic}
 
-    Post type:
-    {post_type}
+Language:
+{language}
 
-    Language:
-    {language}
-
-    Tone:
-    {tone}
-
-    Post length:
-    {post_length}
-
-    Post guidance:
-    {post_guidance}
-
-    Company context:
-    {context}
-    """
+Relevant company context:
+{context}
+"""
 
     response = client.responses.create(
         model="gpt-5.6",
@@ -126,45 +212,113 @@ Return only JSON. Do not add any text before or after it.
         input=user_input
     )
 
-    
     try:
-         post_data = json.loads(response.output_text)
+        post_data = json.loads(response.output_text)
 
     except json.JSONDecodeError:
-        raise ValueError("The AI returned an invalid JSON response.")
+        raise ValueError(
+            "The AI returned an invalid JSON response."
+        )
 
-    required_fields = ["hook", "post", "cta", "hashtags"]
+    required_fields = [
+        "hook",
+        "post",
+        "cta",
+        "hashtags"
+    ]
 
     for field in required_fields:
         if field not in post_data:
-            raise ValueError(f"Missing field in AI response: {field}")
+            raise ValueError(
+                f"Missing field in AI response: {field}"
+            )
 
     return post_data
 
 
-if __name__ == "__main__":
-    topic = input("Post topic: ")
+def revise_linkedin_post(
+    current_post,
+    feedback,
+    company_file_path
+):
+    
+    company_name = load_company_name(company_file_path)
+    company_rules = load_company_rules(company_file_path)
+    global_rules = load_global_rules()
 
-    print("\nChoose post type:")
-    print("1. Product post")
-    print("2. Educational post")
-    print("3. Industry insight")
-    print("4. Technical post")
+    company_rules_text = json.dumps(
+    company_rules,
+    ensure_ascii=False,
+    indent=2
+    )
 
-    choice = input("Enter a number: ")
+    global_rules_text = json.dumps(
+        global_rules,
+        ensure_ascii=False,
+        indent=2
+    )
 
-    if choice == "1":
-        post_type = "Product post"
-    elif choice == "2":
-        post_type = "Educational post"
-    elif choice == "3":
-        post_type = "Industry insight"
-    elif choice == "4":
-        post_type = "Technical post"
-    else:
-        post_type = "General LinkedIn post"
 
-    post = generate_linkedin_post(topic, post_type)
+    instructions = f"""
+    You are a LinkedIn content editor for {company_name}.
 
-    print("\nGenerated LinkedIn post:\n")
-    print(post)
+    Revise the existing LinkedIn post according to the user's feedback.
+
+    Follow all global rules and company-specific rules provided in the prompt.
+
+    Revision rules:
+    - Follow the user's feedback carefully.
+    - Keep parts of the original post that do not need changing.
+    - Preserve the original meaning unless the user asks to change it.
+
+    Return the revised post as valid JSON with exactly these fields:
+
+    {{
+    "hook": "The revised opening hook",
+    "post": "The revised LinkedIn post content",
+    "cta": "The revised call to action",
+    "hashtags": ["#Example1", "#Example2"]
+    }}
+
+    Return only JSON.
+    """
+
+    prompt = f"""
+    CURRENT POST:
+
+    {json.dumps(current_post, ensure_ascii=False)}
+
+    USER FEEDBACK:
+
+    {feedback}
+
+    Global rules:
+    {global_rules_text}
+
+    Company-specific rules:
+    {company_rules_text}
+    """
+
+    response = client.responses.create(
+        model="gpt-4.1-mini",
+        instructions=instructions,
+        input=prompt
+    )
+
+   
+    output_text = response.output_text
+
+    if not output_text or not output_text.strip():
+        raise ValueError(
+            "The AI returned an empty response. Please try revising the post again."
+        )
+
+    try:
+        revised_post = json.loads(output_text)
+
+    except json.JSONDecodeError:
+        raise ValueError(
+            f"The AI returned invalid JSON:\n{output_text}"
+        )
+
+    return revised_post

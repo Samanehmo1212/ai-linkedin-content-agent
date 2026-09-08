@@ -1,0 +1,99 @@
+{
+  "company": {
+    "name": "Vahvero Symbiosis Oy",
+    "website": "https://www.vahvero.com",
+    "country": "Finland",
+    "headquarters": "Finland",
+    "founded": 2014,
+    "industry": [
+      "Data Engineering",
+      "Software Development",
+      "Healthcare Technology",
+      "IT Services"
+    ],
+    "description": "Vahvero Symbiosis Oy is a Finnish software and data engineering company developing software and data solutions, with experience in healthcare and data management.",
+    "core_expertise": [
+      "Software development",
+      "Data engineering",
+      "Data management",
+      "Cloud solutions",
+      "Healthcare software",
+      "Healthcare data",
+      "Reliable software development",
+      "Working across different platforms"
+    ],
+    "key_message": "Reliability, software expertise across different platforms, and cloud expertise are core strengths of Vahvero Symbiosis in software development and data management.",
+    "contact_email": "contact@vahvero.fi"
+  },
+
+  "main_product": {
+    "name": "Raiqu",
+    "category": "Healthcare software",
+    "sector": "Rheumatology",
+    "type": "Web-based quality monitoring service",
+    "purpose": "Support rheumatology care by helping healthcare professionals monitor clinical data and treatment outcomes over time.",
+    "key_capabilities": [
+      "Quality monitoring",
+      "Clinical data management",
+      "Monitoring treatment outcomes over time",
+      "Supporting analysis of healthcare data",
+      "Combining clinical information and standardized measures"
+    ],
+    "data_and_measurement_areas": [
+      "Clinical data",
+      "Patient-reported outcomes",
+      "Treatment information",
+      "JADAS",
+      "DAS"
+    ],
+    "value_proposition": [
+      "Turn healthcare data into meaningful insights",
+      "Support better-informed clinical decisions",
+      "Help healthcare professionals follow treatment outcomes over time",
+      "Support quality monitoring in rheumatology care"
+    ],
+    "target_users": [
+      "Healthcare professionals",
+      "Rheumatology professionals",
+      "Healthcare organizations",
+      "Hospitals",
+      "Healthcare researchers",
+      "Organizations interested in clinical quality monitoring"
+    ],
+    "target_markets": [
+      "Finland",
+      "Nordic countries",
+      "European healthcare markets"
+    ]
+  },
+
+  "other_services": {
+    "areas": [
+      "Data engineering",
+      "Software development",
+      "IT services",
+      "Cloud solutions",
+      "Data management"
+    ]
+  },
+
+  "target_audience": {
+    "primary": [
+      "Healthcare organizations",
+      "Hospitals",
+      "Rheumatology departments",
+      "Healthcare technology organizations",
+      "Digital health companies",
+      "Healthcare decision makers",
+      "Organizations looking for healthcare software"
+    ],
+    "secondary": [
+      "IT decision makers",
+      "Data professionals",
+      "Software development leaders",
+      "FinTech and HealthTech professionals",
+      "Potential European technology partners",
+      "Potential B2B customers"
+    ]
+  }
+}

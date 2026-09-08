@@ -1,0 +1,32 @@
+{
+  "company": {
+    "name": "Nordic Data Labs Oy",
+    "website": "https://example.com",
+    "industry": "Software",
+    "description": "Nordic Data Labs Oy is a Finnish software company providing data engineering, cloud development, and AI automation services."
+  },
+  "products": [],
+  "services": [
+    "data engineering",
+    "cloud development",
+    "AI automation",
+    "AI consulting",
+    "cloud migration consulting",
+    "cloud architecture planning"
+  ],
+  "technologies": [
+    "Python",
+    "Azure",
+    "Docker",
+    "PostgreSQL"
+  ],
+  "target_audience": [
+    "small businesses",
+    "medium-sized businesses"
+  ],
+  "key_messages": [],
+  "contact_information": {
+    "email": "hello@example.com"
+  }
+  
+}

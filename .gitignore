@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 APIKEY.txt
 chunk_embeddings.json
+
+**/embeddings.json
+**/post_history.json

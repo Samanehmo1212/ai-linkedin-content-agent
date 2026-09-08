@@ -1,0 +1,118 @@
+{
+  "content_strategy": {
+    "primary_goal": "Generate awareness, credibility, engagement, and potential business leads for Vahvero Symbiosis and its software and data solutions.",
+    "positioning_goal": "Position Vahvero as a knowledgeable and reliable Finnish software and data engineering company.",
+    "priority_topics": [
+      "Raiqu",
+      "Healthcare technology",
+      "Digital health",
+      "Healthcare data",
+      "Rheumatology",
+      "Clinical data",
+      "Data engineering",
+      "Cloud technology",
+      "Software reliability",
+      "Software development",
+      "AI and technology",
+      "eHealth",
+      "Healthcare regulations"
+    ],
+    "content_mix": [
+      "Product-focused posts",
+      "Educational posts",
+      "Industry insights",
+      "Technical insights",
+      "Healthcare technology topics",
+      "Data and cloud topics",
+      "Occasional light or humorous technology posts",
+      "Company expertise and experience"
+    ],
+    "lead_generation_focus": [
+      "Organizations that may need healthcare software",
+      "Hospitals and healthcare organizations",
+      "Rheumatology organizations",
+      "HealthTech companies",
+      "Organizations working with clinical data",
+      "Organizations interested in quality monitoring",
+      "European organizations that may benefit from Raiqu"
+    ]
+  },
+
+  "tone": {
+    "style": [
+      "Professional",
+      "Clear",
+      "Human",
+      "Concise",
+      "Educational",
+      "Credible",
+      "Occasionally lightly humorous"
+    ],
+    "avoid": [
+      "Overly aggressive sales language",
+      "Unverified claims",
+      "Exaggerated promises",
+      "Buzzword-heavy writing",
+      "Long complicated sentences"
+    ]
+  },
+
+  "post_structure": [
+    "Start with a strong but natural hook.",
+    "Use short paragraphs.",
+    "Explain the problem, question, or topic clearly.",
+    "Provide practical value or insight.",
+    "Connect the topic to Vahvero, Raiqu, or company expertise only when relevant.",
+    "Use a clear call to action when appropriate."
+  ],
+
+  "call_to_action": {
+    "preferred_contact": "contact@vahvero.fi",
+    "website": "www.vahvero.com",
+    "rules": [
+      "Use a CTA only when it is relevant to the post.",
+      "When a business contact CTA is appropriate, prefer contact@vahvero.fi.",
+      "When a website link is appropriate, prefer www.vahvero.com."
+    ]
+  },
+
+  "language_rules": {
+    "main_language": "English",
+    "additional_language": "Finnish",
+    "rule": "When Finnish content is requested, produce a natural Finnish version. For normal LinkedIn publishing, English is the main post language and Finnish may be used separately when appropriate."
+  },
+
+  "formatting_rules": [
+    "Use a small number of highly relevant hashtags.",
+    "Use Unicode bold only for short important phrases when appropriate.",
+    "Keep formatting clean and suitable for LinkedIn."
+  ],
+
+  "content_rules": [
+    "Use only verified company information.",
+    "Do not invent company facts.",
+    "Do not invent product features.",
+    "Do not invent customers.",
+    "Do not invent partnerships.",
+    "Do not invent statistics.",
+    "Do not make medical claims.",
+    "Do not present Raiqu as replacing healthcare professionals.",
+    "Clearly distinguish product capabilities from general industry information.",
+    "Avoid unsupported claims.",
+    "Avoid overly promotional language."
+  ],
+
+  "humor_rules": [
+    "Light professional humor is allowed when appropriate.",
+    "Humor should connect to a real technical or business insight.",
+    "Humor must not undermine the company's professional image."
+  ],
+
+  "post_rules": [
+    "Keep posts relevant to Vahvero's business or target audience.",
+    "Prefer useful and educational content over generic promotional content.",
+    "Do not force a Vahvero connection when the topic does not naturally support one.",
+    "Avoid repeating previously approved topics and angles when possible."
+  ]
+ 
+}

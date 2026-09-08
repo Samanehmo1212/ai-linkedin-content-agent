@@ -1,0 +1,18 @@
+{
+  "content_rules": [
+    "Use only verified company information.",
+    "Do not invent company facts, products, services, customers, partnerships, statistics, or capabilities.",
+    "Avoid unsupported claims.",
+    "Keep the content relevant to the requested topic."
+  ],
+  "writing_rules": [
+    "Write clearly and naturally.",
+    "Avoid unnecessary repetition.",
+    "Avoid overly promotional language unless explicitly requested.",
+    "Use a small number of relevant hashtags."
+  ],
+  "output_rules": [
+    "Return valid JSON.",
+    "Return exactly these fields: hook, post, cta, hashtags."
+  ]
+}
