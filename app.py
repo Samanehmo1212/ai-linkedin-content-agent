@@ -1,15 +1,26 @@
+# This is the Streamlit user interface for the AI LinkedIn Content Agent.
+# It manages content generation, evaluation, revision, and human approval.
 import os
 import json
 
 import streamlit as st
 
-from semantic_retrieval import rebuild_company_embeddings
+from semantic_retrieval import (
+    rebuild_company_embeddings,
+    retrieve_semantic_context
+)
+
+from evaluation import (
+    evaluate_post_rules,
+    evaluate_company_grounding
+)
 
 from content_agent import (
     generate_linkedin_post,
     revise_linkedin_post,
     load_company_rules,
-    suggest_linkedin_topics
+    suggest_linkedin_topics,
+    run_agent
 )
 
 from company_knowledge import (
@@ -28,13 +39,18 @@ from post_history import (
 
 if "post" not in st.session_state:
     st.session_state["post"] = None
+
 if "approved" not in st.session_state:
-    st.session_state["approved"] = False    
+    st.session_state["approved"] = False 
+
 if "company_data" not in st.session_state:
     st.session_state["company_data"] = None
 
 if "updated_company_data" not in st.session_state:
     st.session_state["updated_company_data"] = None
+
+if "company_save_message" not in st.session_state:
+    st.session_state["company_save_message"] = None    
 
 st.set_page_config(
     page_title="AI LinkedIn Content Agent",
@@ -49,9 +65,24 @@ tab1, tab2, tab3 = st.tabs([
     "✍️ Content Studio"
 ])
 
-
 with tab1:
     st.subheader("Company Knowledge")
+    # Displays the save confirmation after the form is cleared
+    if st.session_state["company_save_message"]:
+        st.success(st.session_state["company_save_message"])
+        st.session_state["company_save_message"] = None  
+
+    # Clears the company form after a successful save
+    if st.session_state.get("reset_company_form"):
+        st.session_state["company_name_input"] = ""
+        st.session_state["company_info_input"] = ""
+        st.session_state["reset_company_form"] = False
+
+    company_name = st.text_input(
+    "Company name",
+    placeholder="e.g. Vahvero Symbiosis Oy",
+    key="company_name_input"
+    )
 
     company_text = st.text_area(
         "Add company information",
@@ -60,22 +91,32 @@ with tab1:
             "You can include company description, products, services, "
             "technologies, target customers, brand tone, restrictions, etc."
         ),
-        height=300
+        height=300,
+        key="company_info_input"
     )
 
     process_company_info = st.button("🤖 Process Company Information")
 
     if process_company_info:
 
-        if not company_text.strip():
+        if not company_name.strip():
+            st.warning("Please enter the company name first.")
+
+        elif not company_text.strip():
             st.warning("Please add some company information first.")
 
+        
         else:
             try:
                 with st.spinner("Processing company information..."):
                     structured_company_data = structure_company_information(
+                        company_name,
                         company_text
                     )
+
+                    # structured_company_data = structure_company_information(
+                    #     company_text
+                    # )
 
                 st.session_state["company_data"] = structured_company_data
 
@@ -94,23 +135,44 @@ with tab1:
         st.subheader("Structured Company Knowledge")
         st.json(st.session_state["company_data"])
 
-        save_company_info = st.button("💾 Save Company Knowledge") 
+        save_company_info = st.button("💾 Add Company ") 
 
+        # if save_company_info:
+        #     try:
+        #         file_path = save_company_knowledge(
+        #             st.session_state["company_data"]
+        #         )
+        #         rebuild_company_embeddings(file_path)
+
+        #         st.success(
+        #             f"Company knowledge saved successfully: {file_path}"
+        #         )
+
+        #     except Exception as error:
+        #         st.error("Could not save company knowledge.")
+        #         st.write(error)
         if save_company_info:
             try:
                 file_path = save_company_knowledge(
                     st.session_state["company_data"]
                 )
+
                 rebuild_company_embeddings(file_path)
 
-                st.success(
+                st.session_state["company_save_message"] = (
                     f"Company knowledge saved successfully: {file_path}"
                 )
 
+                st.session_state["company_data"] = None
+                # st.session_state["company_name_input"] = ""
+                # st.session_state["company_info_input"] = ""
+                st.session_state["reset_company_form"] = True                
+
+                st.rerun()
+
             except Exception as error:
                 st.error("Could not save company knowledge.")
-                st.write(error)
-
+                st.write(error)             
 
     st.divider()
     st.subheader("Update Existing Company")
@@ -159,8 +221,7 @@ with tab1:
                             existing_data,
                             new_information
                         )
-
-                    #st.session_state["company_data"] = updated_data
+                    
                     st.session_state["updated_company_data"] = updated_data
                     st.success("Company knowledge update processed successfully!")
 
@@ -192,7 +253,6 @@ with tab1:
 
                     st.session_state["updated_company_data"] = None
 
-                    #st.rerun()
 
                 except Exception as error:
                     st.error("Could not save the updated company knowledge.")
@@ -323,7 +383,6 @@ with tab3:
         if company["name"] == selected_content_company_name
     )
 
-
     if "last_content_company" not in st.session_state:
         st.session_state["last_content_company"] = selected_content_company_name
 
@@ -343,7 +402,6 @@ with tab3:
             st.session_state.pop(key, None)
 
         st.session_state["last_content_company"] = selected_content_company_name
-
 
     language = st.selectbox(
         "Language",
@@ -380,7 +438,6 @@ with tab3:
         key="suggest_topics"
     )
   
-
     if suggest_topics:
 
         st.session_state.pop("post", None)
@@ -513,28 +570,102 @@ with tab3:
             "✨ Generate Post",
             key="generate_selected_topic"
         )
+        
 
         if generate_post:
 
-            post = generate_linkedin_post(
-                selected_topic,
-                language,
-                selected_content_company["file_path"]
-            )
+            user_request = f"""
+        Create a LinkedIn post.
+
+        Topic: {selected_topic}
+        Angle: {selected_angle}
+        Language: {language}
+
+        Before generating the post:
+        1. Find relevant company information.
+        2. Check whether the topic and angle are similar to previously approved topics.
+        3. If appropriate, generate the LinkedIn post.
+        """
+
+            try:
+                agent_result = run_agent(
+                    user_request,
+                    selected_content_company["file_path"]
+                )
+
+            except Exception as e:
+                st.error(
+                    "Something went wrong while running the AI agent. Please try again."
+                )
+                st.exception(e)
+                st.stop()
+
             
-            st.session_state["post"] = post
-            st.session_state["approved"] = False
-            st.session_state["selected_topic"] = selected_topic
-            st.session_state["selected_angle"] = selected_angle
+            if agent_result["status"] == "awaiting_approval":
 
-            post_similarity_result = check_post_similarity(
-                selected_content_company["file_path"],
-                post
-            )
+                post = agent_result["post"]
 
-            st.session_state["post_similarity"] = (
-                post_similarity_result["similarity"]
-            )
+                st.session_state["post"] = post
+                st.session_state["approved"] = False
+                st.session_state["selected_topic"] = selected_topic
+                st.session_state["selected_angle"] = selected_angle
+                st.session_state["agent_trace"] = agent_result["tool_trace"]
+
+        
+                post_similarity_result = check_post_similarity(
+                    selected_content_company["file_path"],
+                    post
+                )
+
+                st.session_state["post_similarity"] = (
+                    post_similarity_result["similarity"]
+                )
+
+                company_rules = load_company_rules(
+                    selected_content_company["file_path"]
+                )
+
+                rule_evaluation = evaluate_post_rules(
+                    post,
+                    company_rules
+                )
+
+                st.session_state["rule_evaluation"] = rule_evaluation  
+
+
+                company_context = retrieve_semantic_context(
+                    selected_topic,
+                    selected_content_company["file_path"]
+                )
+                # print("Grounding context:")
+                # print(company_context)
+                grounding_evaluation = evaluate_company_grounding(
+                    post,
+                    company_context
+                )
+
+                st.session_state["grounding_evaluation"] = grounding_evaluation     
+
+
+        # Display the tools used by the AI agent
+        agent_trace = st.session_state.get("agent_trace")
+
+        if agent_trace:
+
+            with st.expander("🤖 Agent Workflow", expanded=True):
+
+                tool_labels = {
+                    "retrieve_company_context": "Retrieved relevant company knowledge",
+                    "check_topic_similarity": "Checked topic similarity",
+                    "generate_linkedin_post": "Generated structured LinkedIn post"
+                }
+
+                for tool_name in agent_trace:
+                    label = tool_labels.get(tool_name, tool_name)
+                    st.write(f"✅ {label}")
+
+                st.write("⏸️ Waiting for human review")
+                                    
 
         if st.session_state.get("post"):
 
@@ -558,6 +689,45 @@ with tab3:
                     "✅ This draft appears sufficiently different from previous posts."
                 )
 
+            rule_evaluation = st.session_state.get(
+                "rule_evaluation"
+            )
+
+            if rule_evaluation:
+
+                if rule_evaluation["passed"]:
+                    st.success(
+                        "✅ Company content rules passed."
+                    )
+
+                else:
+                    st.warning(
+                        "⚠️ Some company content rules were not followed."
+                    )
+
+                    for issue in rule_evaluation["issues"]:
+                        st.write(f"- {issue}")
+
+
+            grounding_evaluation = st.session_state.get(
+                "grounding_evaluation"
+            )
+
+            if grounding_evaluation:
+
+                if grounding_evaluation["grounded"]:
+                    st.success(
+                        "✅ Company claims are supported by company knowledge."
+                    )
+
+                else:
+                    st.warning(
+                        "⚠️ Some company claims are not supported by company knowledge."
+                    )
+
+                    for claim in grounding_evaluation["unsupported_claims"]:
+                        st.write(f"- {claim}")
+                        
             post = st.session_state["post"]
 
             st.markdown("### Hook")
@@ -575,7 +745,6 @@ with tab3:
 
             if hashtags:
                 st.write(" ".join(hashtags))   
-
 
 
             feedback = st.text_area(
@@ -613,6 +782,29 @@ with tab3:
                         post_similarity_result["similarity"]
                     )
 
+                    company_rules = load_company_rules(
+                        selected_content_company["file_path"]
+                    )
+
+                    rule_evaluation = evaluate_post_rules(
+                        revised_post,
+                        company_rules
+                    )
+
+                    st.session_state["rule_evaluation"] = rule_evaluation
+
+
+                    company_context = retrieve_semantic_context(
+                        st.session_state["selected_topic"],
+                        selected_content_company["file_path"]
+                    )
+
+                    grounding_evaluation = evaluate_company_grounding(
+                        revised_post,
+                        company_context
+                    )
+
+                    st.session_state["grounding_evaluation"] = grounding_evaluation                    
                     st.rerun()     
 
             approve_post = st.button(
@@ -646,7 +838,9 @@ with tab3:
                         "approved",
                         "use_custom_topic",
                         "custom_topic",
-                        "custom_angle"
+                        "custom_angle",
+                        "rule_evaluation",
+                        "grounding_evaluation",
                     ]
 
                     for key in keys_to_clear:

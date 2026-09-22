@@ -1,3 +1,5 @@
+# This module manages approved post history and checks topic
+# and post similarity using embeddings.
 import os
 import json
 from openai import OpenAI

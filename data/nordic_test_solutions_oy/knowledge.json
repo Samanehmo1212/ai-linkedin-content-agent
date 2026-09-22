@@ -1,0 +1,30 @@
+{
+  "company": {
+    "name": "Nordic Test Solutions Oy",
+    "website": "https://example.com",
+    "industry": "Software",
+    "description": "Nordic Test Solutions Oy is a Finnish software company."
+  },
+  "products": [],
+  "services": [
+    "cloud development",
+    "data engineering",
+    "AI automation services"
+  ],
+  "technologies": [
+    "Python",
+    "Azure",
+    "Docker",
+    "PostgreSQL"
+  ],
+  "target_audience": [
+    "small businesses",
+    "medium-sized businesses"
+  ],
+  "key_messages": [
+    "Professional, clear, and friendly communication style"
+  ],
+  "contact_information": {
+    "email": "hello@example.com"
+  }
+}

@@ -2,18 +2,45 @@ import os
 import json
 from openai import OpenAI
 import re
+from pydantic import BaseModel
+
+class CompanyInfo(BaseModel):
+    name: str
+    website: str
+    industry: str
+    description: str
+
+
+class ContactInformation(BaseModel):
+    email: str
+    phone: str
+    address: str
+
+
+class CompanyKnowledge(BaseModel):
+    company: CompanyInfo
+    products: list[str]
+    services: list[str]
+    technologies: list[str]
+    target_audience: list[str]
+    key_messages: list[str]
+    contact_information: ContactInformation
 
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 
-def structure_company_information(raw_text):
+# Converts raw company information into structured company knowledge
+def structure_company_information(company_name, raw_text):    
 
     instructions = """
 You are a company knowledge extraction assistant.
 
 Analyze the company information provided by the user and convert it into
 structured company knowledge.
+
+The company name is provided separately by the user.
+Use exactly that company name and do not infer or change it.
 
 Important rules:
 - Use only information provided by the user.
@@ -22,46 +49,50 @@ Important rules:
 - If information is not available, use an empty list or empty string.
 - Preserve important details from the source text.
 
-Return valid JSON with exactly this structure:
 
-{
-  "company": {
-    "name": "",
-    "website": "",
-    "industry": "",
-    "description": ""
-  },
-  "products": [],
-  "services": [],
-  "technologies": [],
-  "target_audience": [],
-  "key_messages": [],
-  "contact_information": {}
-}
-
-Return only JSON. Do not include explanations before or after it.
 """
 
     
-    response = client.responses.create(
-    model="gpt-4.1-mini",
-    instructions=instructions,
-    input=raw_text
+    # response = client.responses.create(
+    # model="gpt-4.1-mini",
+    # instructions=instructions,
+    # # input=raw_text
+    # input=f"""
+    # Company name: {company_name}
+
+    # Company information:
+    # {raw_text}
+    # """    
+    # )
+
+    # cleaned_output = response.output_text.strip()
+
+    # if cleaned_output.startswith("```json"):
+    #     cleaned_output = cleaned_output[7:]
+
+    # if cleaned_output.endswith("```"):
+    #     cleaned_output = cleaned_output[:-3]
+
+    # cleaned_output = cleaned_output.strip()
+
+    # structured_data = json.loads(cleaned_output)
+
+    # return structured_data
+    response = client.responses.parse(
+        model="gpt-4.1-mini",
+        instructions=instructions,
+        input=f"""
+    Company name: {company_name}
+
+    Company information:
+    {raw_text}
+    """,
+        text_format=CompanyKnowledge
     )
 
-    cleaned_output = response.output_text.strip()
+    structured_data = response.output_parsed
 
-    if cleaned_output.startswith("```json"):
-        cleaned_output = cleaned_output[7:]
-
-    if cleaned_output.endswith("```"):
-        cleaned_output = cleaned_output[:-3]
-
-    cleaned_output = cleaned_output.strip()
-
-    structured_data = json.loads(cleaned_output)
-
-    return structured_data
+    return structured_data.model_dump()    
 
 def save_company_knowledge(company_data):
 

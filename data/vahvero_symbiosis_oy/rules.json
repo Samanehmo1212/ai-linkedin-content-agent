@@ -37,7 +37,6 @@
       "European organizations that may benefit from Raiqu"
     ]
   },
-
   "tone": {
     "style": [
       "Professional",
@@ -56,7 +55,6 @@
       "Long complicated sentences"
     ]
   },
-
   "post_structure": [
     "Start with a strong but natural hook.",
     "Use short paragraphs.",
@@ -65,7 +63,6 @@
     "Connect the topic to Vahvero, Raiqu, or company expertise only when relevant.",
     "Use a clear call to action when appropriate."
   ],
-
   "call_to_action": {
     "preferred_contact": "contact@vahvero.fi",
     "website": "www.vahvero.com",
@@ -75,19 +72,16 @@
       "When a website link is appropriate, prefer www.vahvero.com."
     ]
   },
-
   "language_rules": {
     "main_language": "English",
     "additional_language": "Finnish",
     "rule": "When Finnish content is requested, produce a natural Finnish version. For normal LinkedIn publishing, English is the main post language and Finnish may be used separately when appropriate."
   },
-
   "formatting_rules": [
     "Use a small number of highly relevant hashtags.",
     "Use Unicode bold only for short important phrases when appropriate.",
     "Keep formatting clean and suitable for LinkedIn."
   ],
-
   "content_rules": [
     "Use only verified company information.",
     "Do not invent company facts.",
@@ -101,18 +95,15 @@
     "Avoid unsupported claims.",
     "Avoid overly promotional language."
   ],
-
   "humor_rules": [
     "Light professional humor is allowed when appropriate.",
     "Humor should connect to a real technical or business insight.",
     "Humor must not undermine the company's professional image."
   ],
-
   "post_rules": [
     "Keep posts relevant to Vahvero's business or target audience.",
     "Prefer useful and educational content over generic promotional content.",
     "Do not force a Vahvero connection when the topic does not naturally support one.",
     "Avoid repeating previously approved topics and angles when possible."
   ]
- 
 }

@@ -1,3 +1,5 @@
+# This module retrieves relevant company information using embeddings
+# and semantic similarity.
 import json
 import os
 import math

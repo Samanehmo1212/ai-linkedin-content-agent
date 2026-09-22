@@ -1,0 +1,43 @@
+{
+  "company": {
+    "name": "Nordea",
+    "website": "",
+    "industry": "Financial Services",
+    "description": "Nordea is a Nordic financial services company."
+  },
+  "products": [
+    "everyday banking",
+    "payments",
+    "savings and investments",
+    "lending",
+    "mortgages",
+    "corporate banking",
+    "digital banking services"
+  ],
+  "services": [
+    "banking",
+    "financial services"
+  ],
+  "technologies": [
+    "digitalization",
+    "automation",
+    "artificial intelligence",
+    "data"
+  ],
+  "target_audience": [
+    "personal banking customers",
+    "small and medium-sized businesses",
+    "corporate customers"
+  ],
+  "key_messages": [
+    "professional",
+    "clear",
+    "trustworthy",
+    "customer-focused"
+  ],
+  "contact_information": {
+    "email": "",
+    "phone": "",
+    "address": ""
+  }
+}

@@ -1,12 +1,228 @@
+# This module contains the main AI content generation and agent logic.
+# It generates and revises LinkedIn posts and coordinates AI tools.
 import os
 import json
 from openai import OpenAI
 from semantic_retrieval import retrieve_semantic_context
-from post_history import load_post_history
+from post_history import load_post_history, check_topic_similarity
+from pydantic import BaseModel
 
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
+class LinkedInPost(BaseModel):
+    hook: str
+    post: str
+    cta: str
+    hashtags: list[str]
+#defining schema for suggest topics
+class TopicSuggestion(BaseModel):
+    topic: str
+    angle: str
+
+class TopicSuggestions(BaseModel):
+    topics: list[TopicSuggestion]
+
+retrieve_context_tool = {
+    "type": "function",
+    "name": "retrieve_company_context",
+    "description": "Find relevant company information for a LinkedIn post topic.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "topic": {
+                "type": "string",
+                "description": "The LinkedIn post topic to find relevant company information for."
+            }
+        },
+        "required": ["topic"],
+        "additionalProperties": False
+    }
+}    
+
+check_topic_similarity_tool = {
+    "type": "function",
+    "name": "check_topic_similarity",
+    "description": "Check whether a proposed LinkedIn topic is too similar to previously approved topics.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "topic": {
+                "type": "string",
+                "description": "The proposed LinkedIn post topic."
+            },
+            "angle": {
+                "type": "string",
+                "description": "The proposed angle or perspective for the topic."
+            }
+        },
+        "required": ["topic", "angle"],
+        "additionalProperties": False
+    }
+}
+
+generate_post_tool = {
+    "type": "function",
+    "name": "generate_linkedin_post",
+    "description": "Generate a LinkedIn post for an approved topic and angle.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "topic": {
+                "type": "string",
+                "description": "The main topic of the LinkedIn post."
+            },
+            "angle": {
+                "type": "string",
+                "description": "The specific perspective or angle for the post."
+            },
+            "language": {
+                "type": "string",
+                "description": "The language in which the LinkedIn post should be written."
+            }
+        },
+        "required": ["topic", "angle", "language"],
+        "additionalProperties": False
+    }
+}
+
+
+
+def run_agent(
+    user_request,
+    company_file_path,
+    max_iterations=5
+):
+
+    generated_post = None
+    tool_trace = []
+    response = client.responses.create(
+        model="gpt-5.6",
+        input=user_request,
+        #tools=[retrieve_context_tool]
+        tools=[
+            retrieve_context_tool,
+            check_topic_similarity_tool,
+            generate_post_tool
+        ]              
+    )
+
+    iteration = 0
+    while True:
+
+        iteration += 1
+
+        if iteration > max_iterations:
+            raise RuntimeError(
+                "Agent stopped because it reached the maximum number of iterations."
+            )
+
+        print("Agent iteration:", iteration)
+    
+        tool_calls = []
+
+        for item in response.output:
+            if item.type == "function_call":
+                tool_calls.append(item)
+
+
+        
+        if not tool_calls:
+
+            if generated_post is not None:
+                return {
+                    "status": "awaiting_approval",
+                    "post": generated_post,
+                    "agent_message": response.output_text,
+                    "tool_trace": tool_trace
+                }
+
+            return {
+                "status": "completed",
+                "agent_message": response.output_text,
+                "tool_trace": tool_trace
+
+            }        
+
+        tool_outputs = []
+
+        for tool_call in tool_calls:
+
+            print("Selected tool:", tool_call.name)
+            # for knowing how many tools agent uses
+            tool_trace.append(tool_call.name)
+
+            arguments = json.loads(tool_call.arguments)        
+                   
+            if tool_call.name == "retrieve_company_context":
+
+                topic = arguments["topic"]
+
+                tool_result = retrieve_semantic_context(
+                    topic,
+                    company_file_path
+                )  
+
+            elif tool_call.name == "check_topic_similarity":
+
+                topic = arguments["topic"]
+                angle = arguments["angle"]
+
+                similarity_result = check_topic_similarity(
+                    company_file_path,
+                    topic,
+                    angle
+                )
+
+                tool_result = json.dumps(
+                    similarity_result,
+                    ensure_ascii=False
+                )
+
+            elif tool_call.name == "generate_linkedin_post":
+
+                topic = arguments["topic"]
+                angle = arguments["angle"]
+                language = arguments["language"]
+
+                full_topic = f"{topic}\nAngle: {angle}"
+
+                post_result = generate_linkedin_post(
+                    full_topic,
+                    language,
+                    company_file_path
+                )
+
+                generated_post = post_result
+
+                tool_result = json.dumps(
+                    post_result,
+                    ensure_ascii=False
+                )  
+            else:
+                raise ValueError(
+                    f"Unknown tool: {tool_call.name}"
+                )                                          
+
+            tool_outputs.append({
+                "type": "function_call_output",
+                "call_id": tool_call.call_id,
+                "output": tool_result
+            })  
+
+            
+        response = client.responses.create(
+            model="gpt-5.6",
+            previous_response_id=response.id,
+            input=tool_outputs,
+            tools=[
+                retrieve_context_tool,
+                check_topic_similarity_tool,
+                generate_post_tool
+            ]           
+        ) 
+
+                
 
 def load_company_name(company_file_path):
 
@@ -83,30 +299,17 @@ Return only valid JSON in this exact format:
   ]
 }}
 """
-
-    response = client.chat.completions.create(
+    response = client.responses.parse(
         model="gpt-4.1-mini",
-        messages=[
-            {
-                "role": "user",
-                "content": instructions
-            }
-        ]
+        input=instructions,
+        text_format=TopicSuggestions
     )
 
-    result = response.choices[0].message.content.strip()
+    topic_suggestions = response.output_parsed
 
-    if result.startswith("```json"):
-        result = result[7:]
+    return topic_suggestions.model_dump()
 
-    if result.startswith("```"):
-        result = result[3:]
-
-    if result.endswith("```"):
-        result = result[:-3]
-
-    return json.loads(result.strip())
-
+    
 
 def load_company_rules(company_file_path):
 
@@ -205,35 +408,17 @@ Language:
 Relevant company context:
 {context}
 """
-
-    response = client.responses.create(
+    response = client.responses.parse(
         model="gpt-5.6",
         instructions=instructions,
-        input=user_input
+        input=user_input,
+        text_format=LinkedInPost  #for adding schema
     )
 
-    try:
-        post_data = json.loads(response.output_text)
-
-    except json.JSONDecodeError:
-        raise ValueError(
-            "The AI returned an invalid JSON response."
-        )
-
-    required_fields = [
-        "hook",
-        "post",
-        "cta",
-        "hashtags"
-    ]
-
-    for field in required_fields:
-        if field not in post_data:
-            raise ValueError(
-                f"Missing field in AI response: {field}"
-            )
-
-    return post_data
+    post_data = response.output_parsed
+    
+    return post_data.model_dump()
+   
 
 
 def revise_linkedin_post(
@@ -299,26 +484,16 @@ def revise_linkedin_post(
     {company_rules_text}
     """
 
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        instructions=instructions,
-        input=prompt
+    
+    response = client.responses.parse(
+    model="gpt-4.1-mini",
+    instructions=instructions,
+    input=prompt,
+    text_format=LinkedInPost
     )
 
-   
-    output_text = response.output_text
+    revised_post = response.output_parsed
 
-    if not output_text or not output_text.strip():
-        raise ValueError(
-            "The AI returned an empty response. Please try revising the post again."
-        )
+    return revised_post.model_dump()
 
-    try:
-        revised_post = json.loads(output_text)
 
-    except json.JSONDecodeError:
-        raise ValueError(
-            f"The AI returned invalid JSON:\n{output_text}"
-        )
-
-    return revised_post

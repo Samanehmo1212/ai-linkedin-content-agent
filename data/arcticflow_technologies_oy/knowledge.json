@@ -1,0 +1,39 @@
+{
+  "company": {
+    "name": "ArcticFlow Technologies Oy",
+    "website": "https://example.com",
+    "industry": "Technology",
+    "description": "ArcticFlow Technologies Oy is a Finnish technology company based in Helsinki that provides software development, cloud solutions, data engineering, and AI automation services for small and medium-sized businesses."
+  },
+  "products": [],
+  "services": [
+    "custom software development",
+    "cloud application development",
+    "data integration",
+    "API development",
+    "AI-powered workflow automation"
+  ],
+  "technologies": [
+    "Python",
+    "C#/.NET",
+    "React",
+    "PostgreSQL",
+    "Docker",
+    "Microsoft Azure"
+  ],
+  "target_audience": [
+    "small and medium-sized businesses that want to modernize their software, cloud infrastructure, data processes, or business workflows"
+  ],
+  "key_messages": [
+    "Helps businesses modernize existing digital systems",
+    "Connects different applications and data sources",
+    "Automates repetitive processes",
+    "Makes better use of business data",
+    "Focuses on practical and maintainable technology solutions that can evolve as customer needs change"
+  ],
+  "contact_information": {
+    "email": "hello@example.com",
+    "phone": "",
+    "address": ""
+  }
+}

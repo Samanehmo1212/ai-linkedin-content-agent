@@ -1,0 +1,39 @@
+{
+  "company": {
+    "name": "BluePeak Data Oy",
+    "website": "https://example.com",
+    "industry": "Data and Software",
+    "description": "BluePeak Data Oy is a Finnish data and software company based in Espoo."
+  },
+  "products": [],
+  "services": [
+    "data analytics",
+    "business intelligence",
+    "cloud data solutions",
+    "AI-powered automation services",
+    "data integration",
+    "reporting solutions",
+    "data workflows automation",
+    "practical AI solutions development"
+  ],
+  "technologies": [
+    "Python",
+    "SQL",
+    "Power BI",
+    "PostgreSQL",
+    "Microsoft Azure",
+    "Docker"
+  ],
+  "target_audience": [
+    "small companies",
+    "medium-sized companies"
+  ],
+  "key_messages": [
+    "focus on simple, maintainable, and scalable solutions"
+  ],
+  "contact_information": {
+    "email": "contact@example.com",
+    "phone": "",
+    "address": ""
+  }
+}
