@@ -1,110 +1,200 @@
 # AI LinkedIn Content Agent
 
-A multi-company AI content platform for generating, revising, and approving LinkedIn posts using structured company knowledge, semantic retrieval, configurable content rules, and human-in-the-loop review.
+An AI-powered, multi-company LinkedIn content agent built with Python, Streamlit, the OpenAI API, semantic retrieval, structured outputs, tool calling, and automated content evaluation.
 
-The project started as a simple LinkedIn content generation prototype and has evolved into a more structured AI workflow that separates company knowledge, content rules, semantic retrieval, post history, and AI generation logic.
+The project explores how an LLM can move beyond simple text generation and operate as part of a controlled **agentic workflow** with company-specific knowledge, tools, evaluation, memory, and human approval.
 
-## Features
+## What the Agent Does
+
+The agent generates LinkedIn content using company-specific knowledge and rules rather than relying only on a generic prompt.
+
+Current workflow:
+
+```text
+User Request
+    ↓
+AI Agent
+    ↓
+Retrieve Relevant Company Knowledge
+    ↓
+Check Topic Similarity
+    ↓
+Generate Structured LinkedIn Post
+    ↓
+Evaluate
+ ┌───────┼────────┐
+Similarity  Rules  Grounding
+ └───────┼────────┘
+    ↓
+Human Review
+   ↙     ↘
+Revise   Approve
+           ↓
+     Save to History
+```
+
+## Key Features
 
 ### Multi-Company Architecture
 
-* Support multiple companies with separate knowledge and content rules
-* Store company-specific data independently
-* Switch between companies from the Streamlit interface
-* Keep the core AI logic independent from individual brands
+Each company can have its own:
 
-### Company Knowledge Management
+* structured company knowledge
+* content rules
+* semantic embeddings
+* approved post history
 
-* Add company information through the interface
-* Convert raw company information into structured JSON using AI
-* Review and update existing company knowledge
-* Automatically rebuild semantic embeddings when needed
+This allows the same agent architecture to support different companies without hardcoding the workflow for one organization.
 
-### AI Topic Suggestions
+### AI-Assisted Company Onboarding
 
-* Generate topic and angle suggestions based on company knowledge and content strategy
-* Compare suggested topics against previously approved content
-* Filter highly similar topic suggestions
-* Allow users to enter their own topic and optional angle
+Users can provide raw company information.
+
+The application converts it into structured company knowledge using the OpenAI API and Pydantic schemas.
+
+The knowledge is then stored in a company-specific directory and embeddings are generated for semantic retrieval.
+
+### Structured Outputs
+
+Pydantic schemas are used for predictable and validated AI outputs, including:
+
+* company knowledge
+* topic suggestions
+* LinkedIn posts
+
+This reduces dependence on manually parsing free-form model responses.
 
 ### Semantic Retrieval
 
-* Convert company knowledge into embeddings
-* Retrieve context based on semantic similarity instead of keyword matching
-* Provide only relevant company information to the language model
-* Cache embeddings locally to avoid unnecessary regeneration
+The application uses embeddings and cosine similarity to retrieve the company information most relevant to the requested topic.
 
-### LinkedIn Post Generation
+Instead of providing all available company information to the model, the system selects relevant context before content generation.
 
-Generate structured LinkedIn content containing:
+### Tool Calling
 
-* Hook
-* Main post
-* Call to action
-* Hashtags
+The agent can call application tools such as:
 
-Content generation uses:
+* retrieving relevant company context
+* checking topic and angle similarity
+* generating a structured LinkedIn post
 
-* Selected topic
-* Selected language
-* Relevant company context
-* Global content rules
-* Company-specific rules
+Python executes the requested tools and returns the results to the model.
 
-### Feedback-Based Revision
+### Agent Loop
 
-* Review generated posts before approval
-* Provide natural-language feedback
-* Ask the AI to revise the existing draft
-* Preserve parts of the original post that do not require changes
-* Re-check similarity after revision
+The agent can perform multiple tool-calling iterations before completing a task.
 
-### Duplicate Content Detection
+A typical sequence may be:
 
-The application uses embeddings to compare:
+```text
+Retrieve company context
+        ↓
+Check topic similarity
+        ↓
+Generate LinkedIn post
+        ↓
+Return result for human review
+```
 
-* New topic + angle combinations against previous approved topics
-* Generated drafts against previous approved posts
+A maximum iteration limit is used as a safety guard.
+
+### Semantic Duplicate Detection
+
+New topics, angles, and generated drafts are compared with previously approved content using embeddings and cosine similarity.
 
 This helps reduce repetitive LinkedIn content.
 
-### Human-in-the-Loop Approval
+### Rule Compliance Evaluation
 
-Content is not automatically treated as final.
+Generated posts are evaluated against company-specific content rules.
 
-The workflow allows the user to:
+The evaluator reports whether the post passes the rules and identifies potential violations.
 
-1. Generate content
-2. Review the draft
-3. Provide feedback
-4. Revise the draft
-5. Approve the final version
+### Grounding Evaluation
 
-Only approved posts are added to post history.
+Company-specific claims are checked against retrieved company knowledge.
 
-### Languages
+Unsupported claims are flagged before approval, helping reduce hallucinated company information.
 
-Current interface supports:
+### Feedback and Revision
 
-* English
-* Finnish
+Users can provide feedback on a generated post and request a revision.
 
-## Technologies
+The revised post is evaluated again before approval.
 
-* Python
-* OpenAI API
-* Streamlit
-* JSON
-* Embeddings
-* Semantic Search
-* Cosine Similarity
-* Retrieval-Augmented Generation concepts
-* Prompt Engineering
-* Git / GitHub
+### Human-in-the-Loop
+
+The system does not automatically approve generated content.
+
+The user remains responsible for reviewing, revising, and approving posts before they are saved or used.
+
+### Post History
+
+Approved posts are stored in company-specific history.
+
+Their embeddings can later be used for semantic similarity checks against future topics and drafts.
+
+### Agent Workflow Trace
+
+The Streamlit interface displays the tools used during the agent workflow, making the agent's actions easier to inspect.
+
+Example:
+
+```text
+✓ Retrieved relevant company knowledge
+✓ Checked topic similarity
+✓ Generated structured LinkedIn post
+⏸ Waiting for human review
+```
 
 ## Architecture
 
-The application separates AI logic, company knowledge, company-specific rules, global rules, semantic retrieval, and post history.
+```text
+                    ┌─────────────────────┐
+                    │    Streamlit UI     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │      AI Agent       │
+                    └──────────┬──────────┘
+                               │
+             ┌─────────────────┼─────────────────┐
+             ▼                 ▼                 ▼
+      Semantic Retrieval   Similarity Check   Post Generation
+             │                 │                 │
+             └─────────────────┼─────────────────┘
+                               ▼
+                         Evaluations
+                               │
+                ┌──────────────┼──────────────┐
+                ▼              ▼              ▼
+             Rules         Grounding      Similarity
+                └──────────────┼──────────────┘
+                               ▼
+                         Human Review
+                               │
+                        Revise / Approve
+                               │
+                               ▼
+                         Post History
+```
+
+## Technology Stack
+
+* Python
+* Streamlit
+* OpenAI API
+* OpenAI Responses API
+* Pydantic
+* Structured Outputs
+* Function / Tool Calling
+* OpenAI Embeddings
+* Cosine Similarity
+* JSON-based company knowledge and rules
+* Git / GitHub
+
+## Project Structure
 
 ```text
 linkedin-content-agent/
@@ -114,257 +204,78 @@ linkedin-content-agent/
 ├── company_knowledge.py
 ├── semantic_retrieval.py
 ├── post_history.py
-├── requirements.txt
-├── .env.example
-├── .gitignore
-├── README.md
+├── evaluation.py
 │
 ├── config/
 │   └── global_rules.json
 │
 └── data/
-    ├── vahvero_symbiosis_oy/
-    │   ├── knowledge.json
-    │   └── rules.json
-    │
-    └── nordic_data_labs_oy/
+    └── <company_name>/
         ├── knowledge.json
-        └── rules.json
+        ├── rules.json
+        ├── embeddings.json
+        └── post_history.json
 ```
 
-Runtime-generated files such as `embeddings.json` and `post_history.json` are excluded from Git using `.gitignore`.
+Generated embedding and post-history files can remain local/runtime data rather than being committed to the repository.
 
-## How It Works
+## Running the Project
 
-The current workflow is:
+Install the required Python packages and configure the OpenAI API key as an environment variable.
 
-```text
-Select Company
-      ↓
-Select Language
-      ↓
-AI Suggests Topics + Angles
-      ↓
-Topic Similarity Check
-      ↓
-Select Suggested Topic
-or Enter Custom Topic
-      ↓
-Semantic Retrieval
-      ↓
-Relevant Company Context
-      ↓
-Global Rules + Company Rules
-      ↓
-AI Generates LinkedIn Draft
-      ↓
-Draft Similarity Check
-      ↓
-Human Review
-      ↓
-Feedback-Based AI Revision
-      ↓
-Human Approval
-      ↓
-Approved Post History
-```
-
-## Knowledge and Rules Separation
-
-One of the architectural changes introduced in V2 is the separation between company knowledge and content rules.
-
-### `knowledge.json`
-
-Contains factual information about the company, such as:
-
-* Company information
-* Products
-* Services
-* Technologies and expertise
-* Target audiences
-* Product capabilities
-
-### `rules.json`
-
-Contains company-specific content guidance, such as:
-
-* Content strategy
-* Tone
-* Content rules
-* CTA preferences
-* Formatting rules
-* Language rules
-* Compliance constraints
-
-### `global_rules.json`
-
-Contains general rules shared across companies, including:
-
-* Avoid unsupported claims
-* Use verified company information
-* Write clearly and naturally
-* Return structured output
-
-This separation allows the same AI content engine to work with different companies without hardcoding brand-specific behavior into the Python logic.
-
-## Semantic Retrieval
-
-V1 used keyword matching to find relevant company information.
-
-V2 replaces this with embedding-based semantic retrieval.
-
-Company knowledge is divided into chunks and converted into embeddings using the OpenAI API.
-
-When a topic is provided:
-
-1. The topic is converted into an embedding.
-2. Its similarity to company knowledge chunks is calculated.
-3. The most relevant chunks are selected.
-4. These chunks are provided to the language model as company context.
-
-Cosine similarity is used to compare embedding vectors.
-
-## Output Structure
-
-Generated and revised content uses a structured JSON format:
-
-```json
-{
-  "hook": "Opening hook",
-  "post": "Main LinkedIn post content",
-  "cta": "Call to action",
-  "hashtags": [
-    "#Example",
-    "#LinkedIn"
-  ]
-}
-```
-
-This makes individual parts of the generated content easier to validate, display, revise, and process.
-
-## Project Evolution
-
-### V1 — Initial MVP
-
-The first version focused on proving the basic concept:
-
-* Single-company architecture
-* Structured JSON company information
-* Keyword-based retrieval and scoring
-* Basic LinkedIn post generation
-* User-selected post type, tone, and length
-* Streamlit interface
-* Structured AI output
-
-### V2 — Current Version
-
-The current version expands the prototype into a multi-company AI content workflow:
-
-* Multi-company architecture
-* Separate company knowledge and rules
-* Global content rules
-* Semantic retrieval with embeddings
-* Cached company embeddings
-* AI topic and angle suggestions
-* Topic similarity detection
-* Custom topic support
-* Draft similarity detection
-* Feedback-based AI revision
-* Human approval workflow
-* Approved post history
-* Automatic embedding rebuilding
-
-This evolution moves the project from a basic content generator toward a reusable AI content agent architecture.
-
-## Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/Samanehmo1212/ai-linkedin-content-agent.git
-cd ai-linkedin-content-agent
-```
-
-Install the required packages:
-
-```bash
-py -m pip install -r requirements.txt
-```
-
-## OpenAI API Key
-
-The application requires an OpenAI API key.
-
-Set the key as an environment variable before running the application.
-
-### PowerShell
+Example with PowerShell:
 
 ```powershell
-$env:OPENAI_API_KEY="your_api_key_here"
+$env:OPENAI_API_KEY="YOUR_API_KEY"
 ```
 
-Do not store a real API key directly in the source code or commit it to the repository.
+Run the Streamlit application:
 
-The `.env.example` file can be used to document the required environment variable without exposing a real credential.
-
-## Run the Application
-
-Start the Streamlit application:
-
-```bash
-py -m streamlit run app.py
+```powershell
+py -3.10 -m streamlit run app.py
 ```
 
-The application will open in the browser.
+The API key should never be committed to GitHub.
 
-## Security
+## Reliability and Safety
 
-Sensitive credentials such as API keys should never be committed to the repository.
+The current architecture includes several safeguards:
 
-The project uses `.gitignore` to exclude secrets and runtime-generated files such as:
-
-* `.env`
-* API key files
-* Python cache files
-* Generated embeddings
-* Post history
-
-## Current Status
-
-**V2 is the current working version.**
-
-The application currently supports the complete workflow from company knowledge management and topic suggestion through semantic retrieval, post generation, revision, similarity checking, and human approval.
-
-The project is currently intended as a practical AI agent prototype rather than a production social-media automation platform.
+* company-specific rules
+* structured and validated outputs
+* semantic duplicate detection
+* grounding evaluation
+* rule compliance evaluation
+* human approval before content is accepted
+* maximum agent iteration limit
+* separation of company knowledge and behavioral rules
 
 ## Roadmap
 
-### V3 — Planned
+Planned development includes:
 
-Potential next steps include:
+* automatic self-correction when evaluations fail
+* stronger content-quality evaluation
+* learning from approved content and performance
+* AI image generation
+* brand-aware visual generation
+* publishing and scheduling integrations
+* analytics feedback
+* MCP integrations
+* Docker containerization
+* cloud deployment
+* CI/CD
+* logging and observability
+* systematic LLM and agent evaluation
 
-* AI image generation for LinkedIn posts
-* LinkedIn or social-media platform integration
-* Draft publishing
-* Post scheduling
-* Content performance analytics
-* Engagement-based feedback loops
-* Improved content quality evaluation
-* Persistent database storage
-* Authentication and user management
-* Deployment as an online application
+More advanced orchestration or multi-agent architectures may be explored if the workflow complexity justifies them.
 
-## Project Goals
+## Project Status
 
-This project is being developed as a practical exploration of:
+**Active development**
 
-* AI agent architecture
-* Retrieval-Augmented Generation
-* Semantic search
-* Embeddings
-* Structured knowledge management
-* Prompt engineering
-* Human-in-the-loop AI workflows
-* Multi-company AI systems
-* Content automation
-* Building production-oriented AI applications with Python
+The current version demonstrates an end-to-end human-in-the-loop agentic workflow:
+
+**Company Knowledge → Retrieval → Tool Calling → Generation → Evaluation → Revision → Human Approval → History**
+
+The project is being developed as a practical AI engineering portfolio project and as a foundation for a more production-ready content automation system.
